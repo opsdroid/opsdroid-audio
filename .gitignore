@@ -8,6 +8,7 @@ __pycache__/
 
 # C extensions
 *.so
+!opsdroidaudio/snowboydetect/_snowboydetect.so
 
 # Distribution / packaging
 .Python
