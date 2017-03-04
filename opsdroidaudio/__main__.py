@@ -35,7 +35,8 @@ class OpsdroidAudio:
                              ".opsdroidaudio/configuration.yaml"),
                 "/etc/opsdroidaudio/configuration.yaml"
                 ])
-
+        self.opsdroid_host = self.config.get("opsdroid", {"host": "localhost"}).get("host", "localhost")
+        self.opsdroid_port = self.config.get("opsdroid", {"port": "8080"}).get("port", "8080")
         if os.path.exists(self.config.get("hotword")):
             self.model = self.config.get("hotword")
         else:
@@ -101,15 +102,19 @@ class OpsdroidAudio:
             critical(str(error), 1)
 
     def get_websocket(self):
-        r = requests.post('http://localhost:8080/connector/websocket', data = {})
+        r = requests.post("http://{}:{}/connector/websocket".format(self.opsdroid_host, self.opsdroid_port), data = {})
         response = r.json()
         _LOGGER.debug(response)
         return response["socket"]
 
     def start_socket(self):
-        self.websocket = self.get_websocket()
+        try:
+            self.websocket = self.get_websocket()
+        except ConnectionError as e:
+            self.socket_error(None, e)
+            return
         self.ws = websocket.WebSocketApp(
-                "ws://localhost:8080/connector/websocket/{}".format(self.websocket),
+                "ws://{}:{}/connector/websocket/{}".format(self.opsdroid_host, self.opsdroid_port, self.websocket),
                 on_message = self.socket_message,
                 on_close = self.socket_close,
                 on_error = self.socket_error)
@@ -121,9 +126,11 @@ class OpsdroidAudio:
 
     def socket_close(self, ws):
         self.start_socket()
+        time.sleep(5)
 
     def socket_error(self, ws, error):
         self.start_socket()
+        time.sleep(5)
 
     def interrupt_callback(self):
         """Callback to notify the hotword detector of an interrupt."""
