@@ -2,7 +2,7 @@
 
 **This application is an early alpha and should not be used yet.**
 
-A python application which adds speech recognition and audio responses to [opsdroid][opsdroid].
+A companion python application for [opsdroid][opsdroid] which adds hotwords, speech recognition and audio responses.
 
 This application uses [snowboy hotword detection][snowboy] to allow you to activate opsdroid by saying a hotword followed by your message. Unlike other voice assistants you can train your own hotword or choose from the vast catalogue provided by [kitt.ai][snowboy].
 
