@@ -16,7 +16,7 @@ If you have privacy concerns when using voice assistant applications then you wi
 
 When opsdroid audio listens for your hotword it only retains the last few seconds of sound and processes it locally. This means nothing leaves your device until you say the hotword, and even then maybe not.
 
-When you trigger the hotword and opsdroid audio begins recording the sound is only sent to the services you configure. If you choose to use local speech recognition and text-to-speech services then no sound will ever leave the application. Any sound sent to cloud based services will be encrypted in transit and it is your decision whether to trust that provider with your data or not.
+When you trigger the hotword and opsdroid audio begins recording your voice it is only sent to the services you configure. If you choose to use a local speech recognition service then no sound will ever leave the application. Any sound sent to cloud based services will be encrypted in transit and it is your decision whether to trust that provider with your data or not.
 
 ## Installation
 TODO

@@ -3,9 +3,13 @@ import os
 import sys
 import signal
 import logging
+import threading
+from Queue import Queue
 from datetime import datetime
 
 import yaml
+import websocket
+import requests
 
 import opsdroidaudio.audio as audio
 from opsdroidaudio import recognizers, generators, speakers
@@ -21,7 +25,10 @@ class OpsdroidAudio:
 
     def __init__(self):
         """Initialize variables and load config."""
-        self.interrupted = False
+        self.threads = []
+        self.interrupted = Queue()
+        self.speak_queue = Queue()
+        self.lock = threading.Lock()
         self.config = self.load_config_file([
                 "./configuration.yaml",
                 os.path.join(os.path.expanduser("~"),
@@ -46,16 +53,24 @@ class OpsdroidAudio:
         print('Listening... Press Ctrl+C to exit')
 
         # main loop
-        self.detector.start(detected_callback=self.detected_callback,
-                            recording_callback=self.recording_callback,
-                            interrupt_check=self.interrupt_callback,
-                            sleep_time=0.03)
+        self.threads.append(threading.Thread(target=self.detector.start,kwargs={
+                                        "detected_callback": self.detected_callback,
+                                        "recording_callback": self.recording_callback,
+                                        "interrupt_check": self.interrupt_callback,
+                                        "sleep_time": 0.03}))
+        self.threads.append(threading.Thread(target=self.await_speech))
+        self.start_socket()
+
+        for thread in self.threads:
+            thread.start()
+        for thread in self.threads:
+            thread.join()
 
         self.detector.terminate()
 
     def signal_handler(self, signal, frame):
         """Handle SIGINT."""
-        self.interrupted = True
+        self.interrupted.put(True)
 
     def critical(self, message, code):
         """Exit with critical error."""
@@ -85,9 +100,34 @@ class OpsdroidAudio:
         except FileNotFoundError as error:
             critical(str(error), 1)
 
+    def get_websocket(self):
+        r = requests.post('http://localhost:8080/connector/websocket', data = {})
+        response = r.json()
+        _LOGGER.debug(response)
+        return response["socket"]
+
+    def start_socket(self):
+        self.websocket = self.get_websocket()
+        self.ws = websocket.WebSocketApp(
+                "ws://localhost:8080/connector/websocket/{}".format(self.websocket),
+                on_message = self.socket_message,
+                on_close = self.socket_close,
+                on_error = self.socket_error)
+        self.threads.append(threading.Thread(target=self.ws.run_forever))
+
+    def socket_message(self, ws, message):
+        _LOGGER.info("Bot says '%s'", message)
+        self.speak_queue.put(message)
+
+    def socket_close(self, ws):
+        self.start_socket()
+
+    def socket_error(self, ws, error):
+        self.start_socket()
+
     def interrupt_callback(self):
         """Callback to notify the hotword detector of an interrupt."""
-        return self.interrupted
+        return not self.interrupted.empty()
 
     def detected_callback(self, data, detector):
         """Callback for when the hotword has been detected."""
@@ -95,21 +135,31 @@ class OpsdroidAudio:
 
     def recording_callback(self, data, detector):
         """Callback for handling a recording."""
-        start_time = datetime.now()
+        # start_time = datetime.now()
         audio.play_audio_file(audio.DETECT_DONG)
 
-        user_text = self.recognize_text(data, detector.detector.SampleRate())
+        try:
+            self.lock.acquire()
+            user_text = self.recognize_text(data, detector.detector.SampleRate())
+        finally:
+            self.lock.release()
+
+        self.ws.send(user_text)
         _LOGGER.info("User said '%s'" ,user_text)
 
-        # TODO: Send user_text to opsdroid and get back bot response
-        bot_response = user_text  # For testing
-        _LOGGER.info("Bot says '%s'", bot_response)
+        # end_time = datetime.now()
 
-        speech = self.generate_text(bot_response)
-        end_time = datetime.now()
-        _LOGGER.info("Response took %f seconds.", (end_time - start_time).total_seconds())
+        # _LOGGER.info("Response took %f seconds.", (end_time - start_time).total_seconds())
 
-        self.speak(speech)
+    def await_speech(self):
+        while True:
+            if not self.speak_queue.empty():
+                speech = self.generate_text(self.speak_queue.get())
+                try:
+                    self.lock.acquire()
+                    self.speak(speech)
+                finally:
+                    self.lock.release()
 
     def recognize_text(self, data, sample_rate):
         """Convert raw user audio into text."""
@@ -155,6 +205,6 @@ if __name__ == "__main__":
     opsdroid_audio = OpsdroidAudio()
 
     # capture SIGINT signal, e.g., Ctrl+C
-    signal.signal(signal.SIGINT, opsdroid_audio.signal_handler)
+    signal.signal(signal.SIGINT, sys.exit)
 
     opsdroid_audio.start()
