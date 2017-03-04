@@ -82,7 +82,8 @@ class HotwordDetector(object):
     def __init__(self, decoder_model,
                  resource=RESOURCE_FILE,
                  sensitivity=[],
-                 audio_gain=1):
+                 audio_gain=1,
+                 recording_threshold=RECORDING_THRESHOLD):
 
         def audio_callback(in_data, frame_count, time_info, status):
             self.ring_buffer.extend(in_data)
@@ -202,6 +203,7 @@ class HotwordDetector(object):
                 elif ans > 0:
                     _LOGGER.info("Keyword detected, starting recording")
                     self.recording = True
+                    self.record_buffer.extend(data)
                     callback = detected_callback[ans-1]
                     if callback is not None:
                         callback(data, self)
