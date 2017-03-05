@@ -1,4 +1,3 @@
-dist: trusty
 sudo: required
 matrix:
   fast_finish: true
@@ -16,14 +15,13 @@ cache:
     - $HOME/.cache/pip
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y swig3.0 libjack-jackd2-dev portaudio19-dev sox
+  - sudo apt-get install -y libjack-jackd2-dev portaudio19-dev sox
   - pip install pyaudio
-  - sudo apt-get install libatlas-base-dev
-  - git clone --branch v1.1.0 https://github.com/Kitt-AI/snowboy.git /tmp/snowboy
-  - cd /tmp/snowboy/swig/Python && make && cd -
+  - wget https://s3-us-west-2.amazonaws.com/snowboy/snowboy-releases/ubuntu1204-x86_64-1.1.0.tar.bz2
+  - tar -xvf ubuntu1204-x86_64-1.1.0.tar.bz2 -C /tmp
   - mkdir snowboydetect
-  - cp /tmp/snowboy/swig/Python/_snowboydetect.so snowboydetect/.
-  - cp /tmp/snowboy/swig/Python/snowboydetect.py snowboydetect/__init__.py
+  - cp /tmp/_snowboydetect.so snowboydetect/.
+  - cp /tmp/snowboydetect.py snowboydetect/__init__.py
 install: pip install -U tox coveralls
 language: python
 script: tox
