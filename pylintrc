@@ -1,6 +1,6 @@
 [MASTER]
 reports=no
-ignore=modules
+ignore=opsdroidaudio/snowboydetect
 
 # Reasons disabled:
 # locally-disabled - it spams too much
