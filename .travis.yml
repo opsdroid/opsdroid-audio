@@ -20,8 +20,8 @@ before_install:
   - wget https://s3-us-west-2.amazonaws.com/snowboy/snowboy-releases/ubuntu1204-x86_64-1.1.0.tar.bz2
   - tar -xvf ubuntu1204-x86_64-1.1.0.tar.bz2 -C /tmp
   - mkdir snowboydetect
-  - cp /tmp/_snowboydetect.so snowboydetect/.
-  - cp /tmp/snowboydetect.py snowboydetect/__init__.py
+  - cp /tmp/ubuntu1204-x86_64-1.1.0/_snowboydetect.so snowboydetect/.
+  - cp /tmp/ubuntu1204-x86_64-1.1.0/snowboydetect.py snowboydetect/__init__.py
 install: pip install -U tox coveralls
 language: python
 script: tox
