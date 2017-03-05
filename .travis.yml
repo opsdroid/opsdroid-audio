@@ -15,7 +15,7 @@ cache:
     - $HOME/.cache/pip
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install python-pyaudio sox
+  - sudo apt-get install portaudio19-dev sox
 install: pip install -U tox coveralls
 language: python
 script: tox
