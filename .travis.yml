@@ -14,8 +14,9 @@ cache:
   directories:
     - $HOME/.cache/pip
 before_install:
+  - sudo add-apt-repository ppa:teward/swig3.0
   - sudo apt-get -qq update
-  - sudo apt-get install swig libjack-jackd2-dev portaudio19-dev sox
+  - sudo apt-get install swig3.0 libjack-jackd2-dev portaudio19-dev sox
   - pip install pyaudio
   - sudo apt-get install libatlas-base-dev
   - git clone https://github.com/Kitt-AI/snowboy.git /tmp/snowboy
