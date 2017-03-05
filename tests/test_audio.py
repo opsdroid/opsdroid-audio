@@ -6,6 +6,7 @@ except ImportError:
 
 from opsdroidaudio import audio
 
+
 class TestCore(unittest.TestCase):
     """Test the opsdroid core class."""
 

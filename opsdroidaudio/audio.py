@@ -1,3 +1,4 @@
+"""Audio handling submodule."""
 import collections
 import time
 import os
@@ -26,15 +27,17 @@ RECORDING_THRESHOLD = 3000
 
 class RingBuffer(object):
     """Ring buffer to hold audio from PortAudio."""
+
     def __init__(self, size=4096):
+        """Set buffer max size on init."""
         self._buf = collections.deque(maxlen=size)
 
     def extend(self, data):
-        """Adds data to the end of buffer."""
+        """Add data to the end of buffer."""
         self._buf.extend(data)
 
     def get(self):
-        """Retrieves data from the beginning of buffer and clears it."""
+        """Retrieve data from the beginning of buffer and clears it."""
         tmp = bytes(bytearray(self._buf))
         self._buf.clear()
         return tmp
@@ -68,7 +71,7 @@ def play_audio_file(fname=DETECT_DING):
 
 class HotwordDetector(object):
     """
-    Snowboy decoder to detect whether a keyword specified by `decoder_model`
+    Snowboy decoder to detect whether a keyword specified by decoder_model
     exists in a microphone input stream.
 
     :param decoder_model: decoder model file path, a string or list of strings

@@ -47,10 +47,10 @@ class OpsdroidAudio:
         # main loop
         self.threads.append(
             threading.Thread(target=self.detector.start, kwargs={
-                                "detected_callback": self.detected_callback,
-                                "recording_callback": self.recording_callback,
-                                "interrupt_check": self.interrupt_callback,
-                                "sleep_time": 0.03}))
+                "detected_callback": self.detected_callback,
+                "recording_callback": self.recording_callback,
+                "interrupt_check": self.interrupt_callback,
+                "sleep_time": 0.03}))
         self.threads.append(threading.Thread(target=self.await_speech))
         self.threads.append(threading.Thread(target=self.start_socket))
 
@@ -91,12 +91,10 @@ class OpsdroidAudio:
 
     def load_config_file(self):
         """Load a yaml config file from path."""
-        config_paths = [
-                "./configuration.yaml",
-                os.path.join(os.path.expanduser("~"),
-                             ".opsdroidaudio/configuration.yaml"),
-                "/etc/opsdroidaudio/configuration.yaml"
-                ]
+        config_paths = ["./configuration.yaml",
+                        os.path.join(os.path.expanduser("~"),
+                                     ".opsdroidaudio/configuration.yaml"),
+                        "/etc/opsdroidaudio/configuration.yaml"]
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
@@ -121,7 +119,7 @@ class OpsdroidAudio:
     def get_websocket(self):
         """Request a new websocket from opsdroid."""
         r = requests.post("http://{}:{}/connector/websocket".format(
-            self.opsdroid_host, self.opsdroid_port), data = {})
+            self.opsdroid_host, self.opsdroid_port), data={})
         response = r.json()
         _LOGGER.debug(response)
         return response["socket"]
@@ -134,16 +132,16 @@ class OpsdroidAudio:
             self.socket_error(None, e)
             return
         self.ws = websocket.WebSocketApp(
-                "ws://{}:{}/connector/websocket/{}".format(
-                    self.opsdroid_host, self.opsdroid_port, self.websocket),
-                on_message=self.socket_message,
-                on_close=self.socket_close,
-                on_error=self.socket_error)
+            "ws://{}:{}/connector/websocket/{}".format(
+                self.opsdroid_host, self.opsdroid_port, self.websocket),
+            on_message=self.socket_message,
+            on_close=self.socket_close,
+            on_error=self.socket_error)
         self.websocket_open = True
         self.ws.run_forever()
 
     def socket_message(self, ws, message):
-        """process a new message form the socket."""
+        """Process a new message form the socket."""
         _LOGGER.info("Bot says '%s'", message)
         self.speak_queue.put(message)
 
