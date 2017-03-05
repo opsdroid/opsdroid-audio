@@ -4,6 +4,7 @@ import sys
 import signal
 import logging
 import threading
+import time
 from Queue import Queue
 from datetime import datetime
 
@@ -29,6 +30,7 @@ class OpsdroidAudio:
         self.interrupted = Queue()
         self.speak_queue = Queue()
         self.lock = threading.Lock()
+        self.websocket_open = False
         self.config = self.load_config_file([
                 "./configuration.yaml",
                 os.path.join(os.path.expanduser("~"),
@@ -60,10 +62,10 @@ class OpsdroidAudio:
                                         "interrupt_check": self.interrupt_callback,
                                         "sleep_time": 0.03}))
         self.threads.append(threading.Thread(target=self.await_speech))
-        self.start_socket()
 
         for thread in self.threads:
             thread.start()
+        self.start_socket()
         for thread in self.threads:
             thread.join()
 
@@ -110,7 +112,7 @@ class OpsdroidAudio:
     def start_socket(self):
         try:
             self.websocket = self.get_websocket()
-        except ConnectionError as e:
+        except requests.ConnectionError as e:
             self.socket_error(None, e)
             return
         self.ws = websocket.WebSocketApp(
@@ -118,19 +120,27 @@ class OpsdroidAudio:
                 on_message = self.socket_message,
                 on_close = self.socket_close,
                 on_error = self.socket_error)
-        self.threads.append(threading.Thread(target=self.ws.run_forever))
+        thread = threading.Thread(target=self.ws.run_forever)
+        thread.start()
+        self.threads.append(thread)
+        self.websocket_open = True
 
     def socket_message(self, ws, message):
         _LOGGER.info("Bot says '%s'", message)
         self.speak_queue.put(message)
 
     def socket_close(self, ws):
-        self.start_socket()
+        _LOGGER.info("Websocket closed, attempting reconnect in 5 seconds")
+        self.websocket_open = False
         time.sleep(5)
+        self.start_socket()
 
     def socket_error(self, ws, error):
-        self.start_socket()
-        time.sleep(5)
+        _LOGGER.error("Unable to connect to opsdroid.")
+        if self.websocket_open:
+            self.ws.close()
+        else:
+            self.socket_close(None)
 
     def interrupt_callback(self):
         """Callback to notify the hotword detector of an interrupt."""
@@ -142,24 +152,23 @@ class OpsdroidAudio:
 
     def recording_callback(self, data, detector):
         """Callback for handling a recording."""
-        # start_time = datetime.now()
         audio.play_audio_file(audio.DETECT_DONG)
 
         try:
             self.lock.acquire()
+            start_time = datetime.now()
             user_text = self.recognize_text(data, detector.detector.SampleRate())
+            end_time = datetime.now()
+            _LOGGER.info("Speech recognition took %f seconds.", (end_time - start_time).total_seconds())
+
         finally:
             self.lock.release()
 
         self.ws.send(user_text)
         _LOGGER.info("User said '%s'" ,user_text)
 
-        # end_time = datetime.now()
-
-        # _LOGGER.info("Response took %f seconds.", (end_time - start_time).total_seconds())
-
     def await_speech(self):
-        while True:
+        while self.interrupted.empty():
             if not self.speak_queue.empty():
                 speech = self.generate_text(self.speak_queue.get())
                 try:
@@ -207,6 +216,8 @@ class OpsdroidAudio:
                 raise KeyError
         except KeyError:
             self.critical("No speech generator configured!", 1)
+        finally:
+            _LOGGER.debug("Done")
 
 if __name__ == "__main__":
     opsdroid_audio = OpsdroidAudio()
