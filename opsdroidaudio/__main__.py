@@ -13,7 +13,7 @@ import websocket
 import requests
 
 import opsdroidaudio.audio as audio
-from opsdroidaudio import recognizers, generators, speakers
+from opsdroidaudio import recognizers, generators
 
 
 logging.basicConfig()
@@ -182,8 +182,7 @@ class OpsdroidAudio:
         """Thread to play speech when received."""
         while self.interrupted.empty():
             if not self.speak_queue.empty():
-                speech = self.generate_text(self.speak_queue.get())
-                self.speak(speech)
+                self.generate_speech(self.speak_queue.get())
 
     def recognize_text(self, data, sample_rate):
         """Convert raw user audio into text."""
@@ -197,7 +196,7 @@ class OpsdroidAudio:
         except KeyError:
             self.critical("No speech recognizer configured!", 1)
 
-    def generate_text(self, text):
+    def generate_speech(self, text):
         """Generate speech audio from bot response text."""
         _LOGGER.debug("Generating speech...")
         try:
@@ -210,22 +209,8 @@ class OpsdroidAudio:
                 raise KeyError
         except KeyError:
             self.critical("No speech generator configured!", 1)
-
-    def speak(self, speech):
-        """Play generated speech audio to the user."""
-        _LOGGER.debug("Speaking...")
-        try:
-            config = self.config["speech"]["generator"]
-            if config["name"] == "google":
-                return speakers.google(config, speech)
-            elif config["name"] == "apple_say":
-                return speakers.apple_say(config, speech)
-            else:
-                raise KeyError
-        except KeyError:
-            self.critical("No speech generator configured!", 1)
         finally:
-            _LOGGER.debug("Done")
+            _LOGGER.debug("Done.")
 
 if __name__ == "__main__":
     opsdroid_audio = OpsdroidAudio()
