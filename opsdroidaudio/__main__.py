@@ -62,10 +62,10 @@ class OpsdroidAudio:
                                         "interrupt_check": self.interrupt_callback,
                                         "sleep_time": 0.03}))
         self.threads.append(threading.Thread(target=self.await_speech))
+        self.threads.append(threading.Thread(target=self.start_socket))
 
         for thread in self.threads:
             thread.start()
-        self.start_socket()
         for thread in self.threads:
             thread.join()
 
@@ -73,6 +73,7 @@ class OpsdroidAudio:
 
     def signal_handler(self, signal, frame):
         """Handle SIGINT."""
+        _LOGGER.info("User pressed ^C, exiting...")
         self.interrupted.put(True)
 
     def critical(self, message, code):
@@ -120,27 +121,28 @@ class OpsdroidAudio:
                 on_message = self.socket_message,
                 on_close = self.socket_close,
                 on_error = self.socket_error)
-        thread = threading.Thread(target=self.ws.run_forever)
-        thread.start()
-        self.threads.append(thread)
         self.websocket_open = True
+        self.ws.run_forever()
 
     def socket_message(self, ws, message):
         _LOGGER.info("Bot says '%s'", message)
         self.speak_queue.put(message)
 
-    def socket_close(self, ws):
+    def socket_close(self, ws=None):
         _LOGGER.info("Websocket closed, attempting reconnect in 5 seconds")
-        self.websocket_open = False
-        time.sleep(5)
-        self.start_socket()
+        if self.interrupted.empty():
+            self.websocket_open = False
+            time.sleep(5)
+            self.start_socket()
+        else:
+            return
 
     def socket_error(self, ws, error):
         _LOGGER.error("Unable to connect to opsdroid.")
         if self.websocket_open:
             self.ws.close()
         else:
-            self.socket_close(None)
+            self.socket_close()
 
     def interrupt_callback(self):
         """Callback to notify the hotword detector of an interrupt."""
@@ -223,6 +225,6 @@ if __name__ == "__main__":
     opsdroid_audio = OpsdroidAudio()
 
     # capture SIGINT signal, e.g., Ctrl+C
-    signal.signal(signal.SIGINT, sys.exit)
+    signal.signal(signal.SIGINT, opsdroid_audio.signal_handler)
 
     opsdroid_audio.start()
