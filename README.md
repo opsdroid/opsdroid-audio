@@ -1,5 +1,8 @@
 # opsdroid audio
 
+[![Build Status](https://travis-ci.org/opsdroid/opsdroid-audio.svg?branch=master)](https://travis-ci.org/opsdroid/opsdroid-audio) [![Updates](https://pyup.io/repos/github/opsdroid/opsdroid-audio/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid-audio/)
+
+
 **This application is an early alpha and should not be used yet.**
 
 A companion python application for [opsdroid][opsdroid] which adds hotwords, speech recognition and audio responses.

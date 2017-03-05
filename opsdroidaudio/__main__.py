@@ -32,8 +32,10 @@ class OpsdroidAudio:
         self.lock = threading.Lock()
         self.websocket_open = False
         self.config = self.load_config_file()
-        self.opsdroid_host = self.config.get("opsdroid", {"host": "localhost"}).get("host", "localhost")
-        self.opsdroid_port = self.config.get("opsdroid", {"port": "8080"}).get("port", "8080")
+        self.opsdroid_host = self.config.get(
+            "opsdroid", {"host": "localhost"}).get("host", "localhost")
+        self.opsdroid_port = self.config.get(
+            "opsdroid", {"port": "8080"}).get("port", "8080")
         self.model = self.load_model()
 
     def start(self):
@@ -43,11 +45,12 @@ class OpsdroidAudio:
         print('Listening... Press Ctrl+C to exit')
 
         # main loop
-        self.threads.append(threading.Thread(target=self.detector.start,kwargs={
-                                        "detected_callback": self.detected_callback,
-                                        "recording_callback": self.recording_callback,
-                                        "interrupt_check": self.interrupt_callback,
-                                        "sleep_time": 0.03}))
+        self.threads.append(
+            threading.Thread(target=self.detector.start,kwargs={
+                                "detected_callback": self.detected_callback,
+                                "recording_callback": self.recording_callback,
+                                "interrupt_check": self.interrupt_callback,
+                                "sleep_time": 0.03}))
         self.threads.append(threading.Thread(target=self.await_speech))
         self.threads.append(threading.Thread(target=self.start_socket))
 
@@ -76,7 +79,8 @@ class OpsdroidAudio:
                 return self.config.get("hotword")
             else:
                 pwd, _ = os.path.split(os.path.realpath(__file__))
-                model = "{}/models/{}.pmdl".format(pwd, self.config.get("hotword"))
+                model = "{}/models/{}.pmdl".format(
+                    pwd, self.config.get("hotword"))
                 if os.path.exists(model):
                     return model
                 else:
@@ -88,8 +92,7 @@ class OpsdroidAudio:
         """Load a yaml config file from path."""
         config_paths = [
                 "./configuration.yaml",
-                os.path.join(os.path.expanduser("~"),
-                             ".opsdroidaudio/configuration.yaml"),
+                os.path.join(os.path.expanduser("~"), ".opsdroidaudio/configuration.yaml"),
                 "/etc/opsdroidaudio/configuration.yaml"
                 ]
         config_path = ""
@@ -115,7 +118,8 @@ class OpsdroidAudio:
 
     def get_websocket(self):
         """Request a new websocket from opsdroid."""
-        r = requests.post("http://{}:{}/connector/websocket".format(self.opsdroid_host, self.opsdroid_port), data = {})
+        r = requests.post("http://{}:{}/connector/websocket".format(
+            self.opsdroid_host, self.opsdroid_port), data = {})
         response = r.json()
         _LOGGER.debug(response)
         return response["socket"]
@@ -128,7 +132,8 @@ class OpsdroidAudio:
             self.socket_error(None, e)
             return
         self.ws = websocket.WebSocketApp(
-                "ws://{}:{}/connector/websocket/{}".format(self.opsdroid_host, self.opsdroid_port, self.websocket),
+                "ws://{}:{}/connector/websocket/{}".format(
+                    self.opsdroid_host, self.opsdroid_port, self.websocket),
                 on_message = self.socket_message,
                 on_close = self.socket_close,
                 on_error = self.socket_error)
@@ -173,7 +178,8 @@ class OpsdroidAudio:
         start_time = datetime.now()
         user_text = self.recognize_text(data, detector.detector.SampleRate())
         end_time = datetime.now()
-        _LOGGER.info("Speech recognition took %f seconds.", (end_time - start_time).total_seconds())
+        _LOGGER.info("Speech recognition took %f seconds.",
+                     (end_time - start_time).total_seconds())
 
         self.ws.send(user_text)
         _LOGGER.info("User said '%s'" ,user_text)
