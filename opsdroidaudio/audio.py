@@ -7,7 +7,7 @@ from array import array
 import wave
 import pyaudio
 
-import opsdroidaudio.snowboydetect as snowboydetect
+import snowboydetect
 
 logging.basicConfig()
 _LOGGER = logging.getLogger("snowboy")
@@ -199,7 +199,8 @@ class HotwordDetector(object):
             else:
                 ans = self.detector.RunDetection(data)
                 if ans == -1:
-                    _LOGGER.warning("Error initializing streams or reading audio data")
+                    _LOGGER.warning(
+                        "Error initializing streams or reading audio data")
                 elif ans > 0:
                     _LOGGER.info("Keyword detected, starting recording")
                     self.recording = True

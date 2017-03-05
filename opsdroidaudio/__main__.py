@@ -180,11 +180,11 @@ class OpsdroidAudio:
         start_time = datetime.now()
         user_text = self.recognize_text(data, detector.detector.SampleRate())
         end_time = datetime.now()
-        _LOGGER.info("Speech recognition took %f seconds.", 
+        _LOGGER.info("Speech recognition took %f seconds.",
                      (end_time - start_time).total_seconds())
 
         self.ws.send(user_text)
-        _LOGGER.info("User said '%s'" ,user_text)
+        _LOGGER.info("User said '%s'", user_text)
 
     def await_speech(self):
         """Thread to play speech when received."""
