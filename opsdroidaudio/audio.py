@@ -26,7 +26,7 @@ RECORDING_THRESHOLD = 3000
 
 class RingBuffer(object):
     """Ring buffer to hold audio from PortAudio."""
-    def __init__(self, size = 4096):
+    def __init__(self, size=4096):
         self._buf = collections.deque(maxlen=size)
 
     def extend(self, data):
@@ -71,7 +71,7 @@ class HotwordDetector(object):
     Snowboy decoder to detect whether a keyword specified by `decoder_model`
     exists in a microphone input stream.
 
-    :param decoder_model: decoder model file path, a string or a list of strings
+    :param decoder_model: decoder model file path, a string or list of strings
     :param resource: resource file path.
     :param sensitivity: decoder sensitivity, a float of a list of floats.
                               The bigger the value, the more senstive the
@@ -116,7 +116,8 @@ class HotwordDetector(object):
             self.detector.SetSensitivity(sensitivity_str.encode())
 
         self.ring_buffer = RingBuffer(
-            self.detector.NumChannels() * self.detector.SampleRate() * BUFFER_LENGTH)
+            self.detector.NumChannels() *
+            self.detector.SampleRate() * BUFFER_LENGTH)
         self.record_buffer = RingBuffer(None)
         self.audio = pyaudio.PyAudio()
         self.stream_in = self.audio.open(
@@ -127,7 +128,6 @@ class HotwordDetector(object):
             rate=self.detector.SampleRate(),
             frames_per_buffer=2048,
             stream_callback=audio_callback)
-
 
     def start(self, detected_callback=play_audio_file,
               recording_callback=None,
@@ -141,8 +141,8 @@ class HotwordDetector(object):
         models). Every loop it also calls `interrupt_check` -- if it returns
         True, then breaks from the loop and return.
 
-        :param detected_callback: a function or list of functions. The number of
-                                  items must match the number of models in
+        :param detected_callback: a function or list of functions. The number
+                                  of items must match the number of models in
                                   `decoder_model`.
         :param interrupt_check: a function that returns True if the main loop
                                 needs to stop.
@@ -159,8 +159,8 @@ class HotwordDetector(object):
             detected_callback *= self.num_hotwords
 
         assert self.num_hotwords == len(detected_callback), \
-            "Error: hotwords in your models (%d) do not match the number of " \
-            "callbacks (%d)" % (self.num_hotwords, len(detected_callback))
+            "Error: hotwords in your models (%d) do not match the number " \
+            "of callbacks (%d)" % (self.num_hotwords, len(detected_callback))
 
         _LOGGER.debug("detecting...")
 

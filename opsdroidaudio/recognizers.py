@@ -12,10 +12,10 @@ def google_cloud(config, data, sample_rate):
     audio_data = AudioData(data, sample_rate, 2)
     try:
         text = Recognizer().recognize_google_cloud(audio_data,
-                                                   credentials_json = None,
-                                                   language = "en-GB",
-                                                   preferred_phrases = None,
-                                                   show_all = False)
+                                                   credentials_json=None,
+                                                   language="en-GB",
+                                                   preferred_phrases=None,
+                                                   show_all=False)
     except UnknownValueError:
         text = ""
         _LOGGER.warning("No speech found in audio.")

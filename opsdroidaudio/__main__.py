@@ -46,7 +46,7 @@ class OpsdroidAudio:
 
         # main loop
         self.threads.append(
-            threading.Thread(target=self.detector.start,kwargs={
+            threading.Thread(target=self.detector.start, kwargs={
                                 "detected_callback": self.detected_callback,
                                 "recording_callback": self.recording_callback,
                                 "interrupt_check": self.interrupt_callback,
@@ -84,7 +84,8 @@ class OpsdroidAudio:
                 if os.path.exists(model):
                     return model
                 else:
-                    critical("Unable to find model for hotword {}".format(self.model), 1)
+                    self.critical(
+                        "Unable to find hotword {}".format(self.model), 1)
         finally:
             _LOGGER.info("Loaded model %s", self.config.get("hotword"))
 
@@ -92,7 +93,8 @@ class OpsdroidAudio:
         """Load a yaml config file from path."""
         config_paths = [
                 "./configuration.yaml",
-                os.path.join(os.path.expanduser("~"), ".opsdroidaudio/configuration.yaml"),
+                os.path.join(os.path.expanduser("~"),
+                             ".opsdroidaudio/configuration.yaml"),
                 "/etc/opsdroidaudio/configuration.yaml"
                 ]
         config_path = ""
@@ -105,16 +107,16 @@ class OpsdroidAudio:
                 break
 
         if not config_path:
-            critical("No configuration files found", 1)
+            self.critical("No configuration files found", 1)
 
         try:
             with open(config_path, 'r') as stream:
                 _LOGGER.info("Loaded config from %s", config_path)
                 return yaml.load(stream)
         except yaml.YAMLError as error:
-            critical(error, 1)
+            self.critical(error, 1)
         except FileNotFoundError as error:
-            critical(str(error), 1)
+            self.critical(str(error), 1)
 
     def get_websocket(self):
         """Request a new websocket from opsdroid."""
@@ -134,9 +136,9 @@ class OpsdroidAudio:
         self.ws = websocket.WebSocketApp(
                 "ws://{}:{}/connector/websocket/{}".format(
                     self.opsdroid_host, self.opsdroid_port, self.websocket),
-                on_message = self.socket_message,
-                on_close = self.socket_close,
-                on_error = self.socket_error)
+                on_message=self.socket_message,
+                on_close=self.socket_close,
+                on_error=self.socket_error)
         self.websocket_open = True
         self.ws.run_forever()
 
@@ -178,7 +180,7 @@ class OpsdroidAudio:
         start_time = datetime.now()
         user_text = self.recognize_text(data, detector.detector.SampleRate())
         end_time = datetime.now()
-        _LOGGER.info("Speech recognition took %f seconds.",
+        _LOGGER.info("Speech recognition took %f seconds.", 
                      (end_time - start_time).total_seconds())
 
         self.ws.send(user_text)
@@ -217,6 +219,7 @@ class OpsdroidAudio:
             self.critical("No speech generator configured!", 1)
         finally:
             _LOGGER.debug("Done.")
+
 
 if __name__ == "__main__":
     opsdroid_audio = OpsdroidAudio()
