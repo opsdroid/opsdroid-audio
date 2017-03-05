@@ -31,23 +31,10 @@ class OpsdroidAudio:
         self.speak_queue = Queue()
         self.lock = threading.Lock()
         self.websocket_open = False
-        self.config = self.load_config_file([
-                "./configuration.yaml",
-                os.path.join(os.path.expanduser("~"),
-                             ".opsdroidaudio/configuration.yaml"),
-                "/etc/opsdroidaudio/configuration.yaml"
-                ])
+        self.config = self.load_config_file()
         self.opsdroid_host = self.config.get("opsdroid", {"host": "localhost"}).get("host", "localhost")
         self.opsdroid_port = self.config.get("opsdroid", {"port": "8080"}).get("port", "8080")
-        if os.path.exists(self.config.get("hotword")):
-            self.model = self.config.get("hotword")
-        else:
-            pwd, _ = os.path.split(os.path.realpath(__file__))
-            self.model = "{}/models/{}.pmdl".format(pwd, self.config.get("hotword"))
-            if not os.path.exists(self.model):
-                critical("Unable to find model for hotword {}".format(self.model), 1)
-
-        _LOGGER.info("Loaded model %s", self.config.get("hotword"))
+        self.model = self.load_model()
 
     def start(self):
         """Start listening and processing audio."""
@@ -74,6 +61,7 @@ class OpsdroidAudio:
     def signal_handler(self, signal, frame):
         """Handle SIGINT."""
         _LOGGER.info("User pressed ^C, exiting...")
+        self.ws.close()
         self.interrupted.put(True)
 
     def critical(self, message, code):
@@ -81,8 +69,29 @@ class OpsdroidAudio:
         _LOGGER.critical(message)
         sys.exit(1)
 
-    def load_config_file(self, config_paths):
+    def load_model(self):
+        """Locate the model file to use."""
+        try:
+            if os.path.exists(self.config.get("hotword")):
+                return self.config.get("hotword")
+            else:
+                pwd, _ = os.path.split(os.path.realpath(__file__))
+                model = "{}/models/{}.pmdl".format(pwd, self.config.get("hotword"))
+                if os.path.exists(model):
+                    return model
+                else:
+                    critical("Unable to find model for hotword {}".format(self.model), 1)
+        finally:
+            _LOGGER.info("Loaded model %s", self.config.get("hotword"))
+
+    def load_config_file(self):
         """Load a yaml config file from path."""
+        config_paths = [
+                "./configuration.yaml",
+                os.path.join(os.path.expanduser("~"),
+                             ".opsdroidaudio/configuration.yaml"),
+                "/etc/opsdroidaudio/configuration.yaml"
+                ]
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
@@ -105,12 +114,14 @@ class OpsdroidAudio:
             critical(str(error), 1)
 
     def get_websocket(self):
+        """Request a new websocket from opsdroid."""
         r = requests.post("http://{}:{}/connector/websocket".format(self.opsdroid_host, self.opsdroid_port), data = {})
         response = r.json()
         _LOGGER.debug(response)
         return response["socket"]
 
     def start_socket(self):
+        """Connect to opsdroid with a websocket."""
         try:
             self.websocket = self.get_websocket()
         except requests.ConnectionError as e:
@@ -125,10 +136,12 @@ class OpsdroidAudio:
         self.ws.run_forever()
 
     def socket_message(self, ws, message):
+        """process a new message form the socket."""
         _LOGGER.info("Bot says '%s'", message)
         self.speak_queue.put(message)
 
     def socket_close(self, ws=None):
+        """Handle the socket closing."""
         _LOGGER.info("Websocket closed, attempting reconnect in 5 seconds")
         if self.interrupted.empty():
             self.websocket_open = False
@@ -138,6 +151,7 @@ class OpsdroidAudio:
             return
 
     def socket_error(self, ws, error):
+        """Handle an error on the socket."""
         _LOGGER.error("Unable to connect to opsdroid.")
         if self.websocket_open:
             self.ws.close()
@@ -156,28 +170,20 @@ class OpsdroidAudio:
         """Callback for handling a recording."""
         audio.play_audio_file(audio.DETECT_DONG)
 
-        try:
-            self.lock.acquire()
-            start_time = datetime.now()
-            user_text = self.recognize_text(data, detector.detector.SampleRate())
-            end_time = datetime.now()
-            _LOGGER.info("Speech recognition took %f seconds.", (end_time - start_time).total_seconds())
-
-        finally:
-            self.lock.release()
+        start_time = datetime.now()
+        user_text = self.recognize_text(data, detector.detector.SampleRate())
+        end_time = datetime.now()
+        _LOGGER.info("Speech recognition took %f seconds.", (end_time - start_time).total_seconds())
 
         self.ws.send(user_text)
         _LOGGER.info("User said '%s'" ,user_text)
 
     def await_speech(self):
+        """Thread to play speech when received."""
         while self.interrupted.empty():
             if not self.speak_queue.empty():
                 speech = self.generate_text(self.speak_queue.get())
-                try:
-                    self.lock.acquire()
-                    self.speak(speech)
-                finally:
-                    self.lock.release()
+                self.speak(speech)
 
     def recognize_text(self, data, sample_rate):
         """Convert raw user audio into text."""
