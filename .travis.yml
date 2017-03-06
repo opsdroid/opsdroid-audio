@@ -9,8 +9,9 @@ matrix:
       env: TOXENV=py27
     - python: "3.5"
       env: TOXENV=py35
-    # - python: "3.6"
-    #   env: TOXENV=py36
+  allow_failures:
+    - python: "3.6"
+      env: TOXENV=py36
 cache:
   directories:
     - $HOME/.cache/pip
