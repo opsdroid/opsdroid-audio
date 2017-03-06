@@ -111,8 +111,10 @@ class HotwordDetector(object):
             sensitivity = [sensitivity]
         model_str = ",".join(decoder_model)
 
+        # pylint: disabe=unexpected-keyword-arg
         self.detector = snowboydetect.SnowboyDetect(
-            resource_filename=resource.encode(), model_str=model_str.encode())
+            resource_filename=resource.encode(),
+            model_str=model_str.encode())
         self.detector.SetAudioGain(audio_gain)
         self.num_hotwords = self.detector.NumHotwords()
 
