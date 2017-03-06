@@ -1,6 +1,6 @@
 # opsdroid audio
 
-[![Build Status](https://travis-ci.org/opsdroid/opsdroid-audio.svg?branch=master)](https://travis-ci.org/opsdroid/opsdroid-audio) [![Updates](https://pyup.io/repos/github/opsdroid/opsdroid-audio/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid-audio/)
+[![Build Status](https://travis-ci.org/opsdroid/opsdroid-audio.svg?branch=master)](https://travis-ci.org/opsdroid/opsdroid-audio) [![Coverage Status](https://coveralls.io/repos/github/opsdroid/opsdroid-audio/badge.svg?branch=master)](https://coveralls.io/github/opsdroid/opsdroid-audio?branch=master) [![Updates](https://pyup.io/repos/github/opsdroid/opsdroid-audio/shield.svg)](https://pyup.io/repos/github/opsdroid/opsdroid-audio/)
 
 
 **This application is an early alpha and should not be used yet.**
