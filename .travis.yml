@@ -18,9 +18,8 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y swig3.0 libjack-jackd2-dev portaudio19-dev sox
   - sudo ln -s /usr/bin/swig3.0 /usr/bin/swig
-  - sudo rm -f /usr/bin/python-config && sudo ln -s /usr/bin/python3-config /usr/bin/python-config
   - pip install pyaudio
-  - sudo apt-get install libatlas-base-dev
+  - sudo apt-get install -y libatlas-base-dev
   - git clone --branch v1.1.0 https://github.com/Kitt-AI/snowboy.git /tmp/snowboy
   - cd /tmp/snowboy/swig/Python && make && cd -
   - mv /tmp/snowboy/swig/Python snowboydetect
