@@ -8,7 +8,7 @@ from array import array
 import wave
 import pyaudio
 
-import snowboydetect
+from snowboydetect import snowboydetect
 
 logging.basicConfig()
 _LOGGER = logging.getLogger("snowboy")
