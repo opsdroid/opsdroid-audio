@@ -123,7 +123,7 @@ class OpsdroidAudio:
             self.opsdroid_host, self.opsdroid_port), data={})
         output = response.json()
         _LOGGER.debug(output)
-        return response["socket"]
+        return output["socket"]
 
     def start_socket(self):
         """Connect to opsdroid with a websocket."""
