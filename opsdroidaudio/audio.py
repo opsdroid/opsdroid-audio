@@ -44,6 +44,7 @@ class RingBuffer(object):
 
     @property
     def length(self):
+        """Get the length of the buffer."""
         return len(self._buf)
 
 
@@ -89,6 +90,7 @@ class HotwordDetector(object):
                  recording_threshold=RECORDING_THRESHOLD):
 
         def audio_callback(in_data, frame_count, time_info, status):
+            """Extend buffer with data from pyaudio."""
             self.ring_buffer.extend(in_data)
             play_data = chr(0) * len(in_data)
             return play_data, pyaudio.paContinue
@@ -96,10 +98,11 @@ class HotwordDetector(object):
         self.recording = False
         self.recording_silence = 0
         self.recording_time = 0
+        self.last_chunk_silent = False
 
-        if type(decoder_model) is not list:
+        if not isinstance(decoder_model, list):
             decoder_model = [decoder_model]
-        if type(sensitivity) is not list:
+        if not isinstance(sensitivity, list):
             sensitivity = [sensitivity]
         model_str = ",".join(decoder_model)
 
@@ -156,7 +159,7 @@ class HotwordDetector(object):
             _LOGGER.debug("detect voice return")
             return
 
-        if type(detected_callback) is not list:
+        if not isinstance(detected_callback, list):
             detected_callback = [detected_callback]
         if len(detected_callback) == 1 and self.num_hotwords > 1:
             detected_callback *= self.num_hotwords
@@ -183,7 +186,7 @@ class HotwordDetector(object):
                 self.recording_time += 1
                 if self.recording_time > RECORDING_SILENCE_START and \
                         max(data_as_ints) < RECORDING_THRESHOLD and \
-                        self.silent_chunk:
+                        self.last_chunk_silent:
                     self.recording_silence += 1
                 else:
                     self.recording_silence = 0
@@ -196,9 +199,9 @@ class HotwordDetector(object):
                     self.recording_time = 0
 
                 if max(data_as_ints) > RECORDING_THRESHOLD:
-                    self.silent_chunk = False
+                    self.last_chunk_silent = False
                 else:
-                    self.silent_chunk = True
+                    self.last_chunk_silent = True
             else:
                 ans = self.detector.RunDetection(data)
                 if ans == -1:

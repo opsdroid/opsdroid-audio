@@ -61,13 +61,14 @@ class OpsdroidAudio:
 
         self.detector.terminate()
 
-    def signal_handler(self, signal, frame):
+    def signal_handler(self, signalcode, frame):
         """Handle SIGINT."""
         _LOGGER.info("User pressed ^C, exiting...")
-        self.ws.close()
+        self.websocket.close()
         self.interrupted.put(True)
 
-    def critical(self, message, code):
+    @staticmethod
+    def critical(message, code):
         """Exit with critical error."""
         _LOGGER.critical(message)
         sys.exit(1)
@@ -118,27 +119,27 @@ class OpsdroidAudio:
 
     def get_websocket(self):
         """Request a new websocket from opsdroid."""
-        r = requests.post("http://{}:{}/connector/websocket".format(
+        response = requests.post("http://{}:{}/connector/websocket".format(
             self.opsdroid_host, self.opsdroid_port), data={})
-        response = r.json()
-        _LOGGER.debug(response)
+        output = response.json()
+        _LOGGER.debug(output)
         return response["socket"]
 
     def start_socket(self):
         """Connect to opsdroid with a websocket."""
         try:
-            self.websocket = self.get_websocket()
-        except requests.ConnectionError as e:
-            self.socket_error(None, e)
+            self.websocket_url = self.get_websocket()
+        except requests.ConnectionError as error:
+            self.socket_error(None, error)
             return
-        self.ws = websocket.WebSocketApp(
+        self.websocket = websocket.WebSocketApp(
             "ws://{}:{}/connector/websocket/{}".format(
-                self.opsdroid_host, self.opsdroid_port, self.websocket),
+                self.opsdroid_host, self.opsdroid_port, self.websocket_url),
             on_message=self.socket_message,
             on_close=self.socket_close,
             on_error=self.socket_error)
         self.websocket_open = True
-        self.ws.run_forever()
+        self.websocket.run_forever()
 
     def socket_message(self, ws, message):
         """Process a new message form the socket."""
@@ -159,7 +160,7 @@ class OpsdroidAudio:
         """Handle an error on the socket."""
         _LOGGER.error("Unable to connect to opsdroid.")
         if self.websocket_open:
-            self.ws.close()
+            self.websocket.close()
         else:
             self.socket_close()
 
@@ -167,7 +168,8 @@ class OpsdroidAudio:
         """Callback to notify the hotword detector of an interrupt."""
         return not self.interrupted.empty()
 
-    def detected_callback(self, data, detector):
+    @staticmethod
+    def detected_callback(data, detector):
         """Callback for when the hotword has been detected."""
         audio.play_audio_file(audio.DETECT_DING)
 
@@ -181,7 +183,7 @@ class OpsdroidAudio:
         _LOGGER.info("Speech recognition took %f seconds.",
                      (end_time - start_time).total_seconds())
 
-        self.ws.send(user_text)
+        self.websocket.send(user_text)
         _LOGGER.info("User said '%s'", user_text)
 
     def await_speech(self):
@@ -220,9 +222,9 @@ class OpsdroidAudio:
 
 
 if __name__ == "__main__":
-    opsdroid_audio = OpsdroidAudio()
+    oaudio = OpsdroidAudio()
 
     # capture SIGINT signal, e.g., Ctrl+C
-    signal.signal(signal.SIGINT, opsdroid_audio.signal_handler)
+    signal.signal(signal.SIGINT, oaudio.signal_handler)
 
-    opsdroid_audio.start()
+    oaudio.start()

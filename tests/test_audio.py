@@ -12,5 +12,5 @@ class TestCore(unittest.TestCase):
 
     def test_ring_buffer(self):
         ring_buffer = audio.RingBuffer()
-        ring_buffer.extend([True])
+        ring_buffer.extend([mock.Mock()])
         self.assertEqual(ring_buffer.length, 1)
