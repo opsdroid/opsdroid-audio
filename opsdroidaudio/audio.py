@@ -83,13 +83,14 @@ class HotwordDetector(object):
                               default sensitivity in the model will be used.
     :param audio_gain: multiply input volume by this factor.
     """
+
     def __init__(self, decoder_model,
                  resource=RESOURCE_FILE,
                  sensitivity=None,
-                 audio_gain=1,
-                 recording_threshold=RECORDING_THRESHOLD):
+                 audio_gain=1):
         """Initialise the HotwordDetector object."""
-
+        # pylint: disable=too-many-instance-attributes
+        # Needs refactoring as port of opsdroid/opsdroid-audio#12
         def audio_callback(in_data, frame_count, time_info, status):
             """Extend buffer with data from pyaudio."""
             self.ring_buffer.extend(in_data)
@@ -143,7 +144,9 @@ class HotwordDetector(object):
               interrupt_check=lambda: False,
               sleep_time=0.03):
         """
-        Start the voice detector. For every `sleep_time` second it checks the
+        Start the voice detector.
+
+        For every `sleep_time` second it checks the
         audio buffer for triggering keywords. If detected, then call
         corresponding function in `detected_callback`, which can be a single
         function (single model) or a list of callback functions (multiple
@@ -223,6 +226,7 @@ class HotwordDetector(object):
     def terminate(self):
         """
         Terminate audio stream. Users cannot call start() again to detect.
+
         :return: None
         """
         self.stream_in.stop_stream()

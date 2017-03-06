@@ -5,8 +5,11 @@ import signal
 import logging
 import threading
 import time
-from Queue import Queue
 from datetime import datetime
+try:
+    from Queue import Queue
+except ImportError:
+    from queue import Queue
 
 import yaml
 import websocket
@@ -26,6 +29,8 @@ class OpsdroidAudio:
 
     def __init__(self):
         """Initialize variables and load config."""
+        # pylint: disable=too-many-instance-attributes
+        # Needs refactoring as port of opsdroid/opsdroid-audio#12
         self.threads = []
         self.interrupted = Queue()
         self.speak_queue = Queue()
@@ -43,8 +48,7 @@ class OpsdroidAudio:
 
     def start(self):
         """Start listening and processing audio."""
-        self.detector = audio.HotwordDetector(self.model, sensitivity=0.4,
-                                              recording_threshold=3000)
+        self.detector = audio.HotwordDetector(self.model, sensitivity=0.4)
         print('Listening... Press Ctrl+C to exit')
 
         # main loop
@@ -144,12 +148,12 @@ class OpsdroidAudio:
         self.websocket_open = True
         self.websocket.run_forever()
 
-    def socket_message(self, websocket, message):
+    def socket_message(self, socket, message):
         """Process a new message form the socket."""
         _LOGGER.info("Bot says '%s'", message)
         self.speak_queue.put(message)
 
-    def socket_close(self, websocket=None):
+    def socket_close(self, socket=None):
         """Handle the socket closing."""
         _LOGGER.info("Websocket closed, attempting reconnect in 5 seconds")
         if self.interrupted.empty():
@@ -159,7 +163,7 @@ class OpsdroidAudio:
         else:
             return
 
-    def socket_error(self, websocket, error):
+    def socket_error(self, socket, error):
         """Handle an error on the socket."""
         _LOGGER.error("Unable to connect to opsdroid.")
         if self.websocket_open:
