@@ -1,3 +1,4 @@
+dist: trusty
 sudo: required
 matrix:
   fast_finish: true
@@ -18,11 +19,11 @@ before_install:
   - sudo apt-get install -y libjack-jackd2-dev portaudio19-dev sox
   - pip install pyaudio
   - sudo apt-get install libatlas-base-dev
-  - wget https://s3-us-west-2.amazonaws.com/snowboy/snowboy-releases/ubuntu1204-x86_64-1.1.0.tar.bz2
-  - tar -xvf ubuntu1204-x86_64-1.1.0.tar.bz2 -C /tmp
+  - wget https://s3-us-west-2.amazonaws.com/snowboy/snowboy-releases/ubuntu1404-x86_64-1.1.0.tar.bz2
+  - tar -xvf ubuntu1404-x86_64-1.1.0.tar.bz2 -C /tmp
   - mkdir snowboydetect
-  - cp /tmp/ubuntu1204-x86_64-1.1.0/_snowboydetect.so snowboydetect/.
-  - cp /tmp/ubuntu1204-x86_64-1.1.0/snowboydetect.py snowboydetect/__init__.py
+  - cp /tmp/ubuntu1404-x86_64-1.1.0/_snowboydetect.so snowboydetect/.
+  - cp /tmp/ubuntu1404-x86_64-1.1.0/snowboydetect.py snowboydetect/__init__.py
 install: pip install -U tox coveralls
 language: python
 script: tox
