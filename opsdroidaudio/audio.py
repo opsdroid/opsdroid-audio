@@ -84,13 +84,14 @@ class HotwordDetector(object):
     :param audio_gain: multiply input volume by this factor.
     """
 
+    # pylint: disable=too-many-instance-attributes
+    # Needs refactoring as port of opsdroid/opsdroid-audio#12
+
     def __init__(self, decoder_model,
                  resource=RESOURCE_FILE,
                  sensitivity=None,
                  audio_gain=1):
         """Initialise the HotwordDetector object."""
-        # pylint: disable=too-many-instance-attributes
-        # Needs refactoring as port of opsdroid/opsdroid-audio#12
         def audio_callback(in_data, frame_count, time_info, status):
             """Extend buffer with data from pyaudio."""
             self.ring_buffer.extend(in_data)
@@ -161,6 +162,8 @@ class HotwordDetector(object):
         :param float sleep_time: how much time in second every loop waits.
         :return: None
         """
+        # pylint: disable=too-many-branches
+        # Needs refactoring as port of opsdroid/opsdroid-audio#12
         if interrupt_check():
             _LOGGER.debug("detect voice return")
             return

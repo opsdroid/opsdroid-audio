@@ -27,10 +27,11 @@ _LOGGER.setLevel(logging.DEBUG)
 class OpsdroidAudio:
     """The opsdroid audio class."""
 
+    # pylint: disable=too-many-instance-attributes
+    # Needs refactoring as port of opsdroid/opsdroid-audio#12
+
     def __init__(self):
         """Initialize variables and load config."""
-        # pylint: disable=too-many-instance-attributes
-        # Needs refactoring as port of opsdroid/opsdroid-audio#12
         self.threads = []
         self.interrupted = Queue()
         self.speak_queue = Queue()
