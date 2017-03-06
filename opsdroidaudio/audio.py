@@ -49,8 +49,9 @@ class RingBuffer(object):
 
 
 def play_audio_file(fname=DETECT_DING):
-    """Simple callback function to play a wave file. By default it plays
-    a Ding sound.
+    """Simple callback function to play a wave file.
+
+    By default it plays a Ding sound.
 
     :param str fname: wave file name
     :return: None
@@ -72,8 +73,7 @@ def play_audio_file(fname=DETECT_DING):
 
 class HotwordDetector(object):
     """
-    Snowboy decoder to detect whether a keyword specified by decoder_model
-    exists in a microphone input stream.
+    Detect whether a keyword exists in a microphone input stream.
 
     :param decoder_model: decoder model file path, a string or list of strings
     :param resource: resource file path.
@@ -85,9 +85,10 @@ class HotwordDetector(object):
     """
     def __init__(self, decoder_model,
                  resource=RESOURCE_FILE,
-                 sensitivity=[],
+                 sensitivity=None,
                  audio_gain=1,
                  recording_threshold=RECORDING_THRESHOLD):
+        """Initialise the HotwordDetector object."""
 
         def audio_callback(in_data, frame_count, time_info, status):
             """Extend buffer with data from pyaudio."""
@@ -102,7 +103,9 @@ class HotwordDetector(object):
 
         if not isinstance(decoder_model, list):
             decoder_model = [decoder_model]
-        if not isinstance(sensitivity, list):
+        if sensitivity is None:
+            sensitivity = []
+        elif not isinstance(sensitivity, list):
             sensitivity = [sensitivity]
         model_str = ",".join(decoder_model)
 

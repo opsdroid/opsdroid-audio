@@ -12,6 +12,9 @@ _LOGGER = logging.getLogger(__name__)
 
 def google(config, text):
     """Generate speech with Google."""
+    # pylint: disable=broad-except
+    # gTTS is a poorly written library and only throws broad Exceptions which
+    # we need to catch.
     try:
         speech = gTTS(text=text, lang='en')
     except Exception:

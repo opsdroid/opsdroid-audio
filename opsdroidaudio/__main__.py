@@ -30,6 +30,9 @@ class OpsdroidAudio:
         self.interrupted = Queue()
         self.speak_queue = Queue()
         self.lock = threading.Lock()
+        self.websocket = None
+        self.websocket_url = None
+        self.detector = None
         self.websocket_open = False
         self.config = self.load_config_file()
         self.opsdroid_host = self.config.get(
@@ -141,12 +144,12 @@ class OpsdroidAudio:
         self.websocket_open = True
         self.websocket.run_forever()
 
-    def socket_message(self, ws, message):
+    def socket_message(self, websocket, message):
         """Process a new message form the socket."""
         _LOGGER.info("Bot says '%s'", message)
         self.speak_queue.put(message)
 
-    def socket_close(self, ws=None):
+    def socket_close(self, websocket=None):
         """Handle the socket closing."""
         _LOGGER.info("Websocket closed, attempting reconnect in 5 seconds")
         if self.interrupted.empty():
@@ -156,7 +159,7 @@ class OpsdroidAudio:
         else:
             return
 
-    def socket_error(self, ws, error):
+    def socket_error(self, websocket, error):
         """Handle an error on the socket."""
         _LOGGER.error("Unable to connect to opsdroid.")
         if self.websocket_open:
@@ -221,10 +224,15 @@ class OpsdroidAudio:
             _LOGGER.debug("Done.")
 
 
-if __name__ == "__main__":
+def main():
+    """The main function."""
     oaudio = OpsdroidAudio()
 
     # capture SIGINT signal, e.g., Ctrl+C
     signal.signal(signal.SIGINT, oaudio.signal_handler)
 
     oaudio.start()
+
+
+if __name__ == "__main__":
+    main()
