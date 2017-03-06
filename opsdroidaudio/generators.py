@@ -4,7 +4,7 @@ import tempfile
 from subprocess import call
 
 from playsound import playsound
-from gtts import gTTS
+from gtts import gTTS  # pylint: disable=import-error
 
 
 _LOGGER = logging.getLogger(__name__)
