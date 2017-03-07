@@ -66,3 +66,4 @@ fi
 rm -r $TMP_DIR
 
 echo "Done"
+exit 0
