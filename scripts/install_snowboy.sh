@@ -63,7 +63,7 @@ if [ ! $? -eq 0 ]; then
 fi
 
 # Clean up
-rm -r $TMP_DIR
+rm -rf $TMP_DIR
 
 echo "Done"
 exit 0
