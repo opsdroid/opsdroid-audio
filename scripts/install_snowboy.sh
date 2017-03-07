@@ -26,7 +26,7 @@ fi
 if [ ! $(which swig) ]; then
   if [ $(which swig3.0) ]; then
     echo "Detected swig3.0."
-    sed -i '' "s/SWIG := swig/SWIG := swig3.0/g" $TMP_DIR/swig/Python/Makefile
+    sed -i '' 's/SWIG := swig/SWIG := swig3.0/g' $TMP_DIR/swig/Python/Makefile
   else
     echo "Error: Installing snowboy requires swig3.0."
     exit 1
@@ -36,7 +36,7 @@ fi
 # Check if python3 and if so update the Makefile
 if [[ $(python --version 2>&1) =~ ^.*3\.[0-9]+\.[0-9]+$ ]]; then
   echo "Setting build for python 3"
-  sed -i '' "s/python-config/python3-config/g" $TMP_DIR/swig/Python/Makefile
+  sed -i '' 's/python-config/python3-config/g' $TMP_DIR/swig/Python/Makefile
 else
   echo "Setting build for python 2"
 fi
