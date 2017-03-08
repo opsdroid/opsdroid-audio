@@ -21,7 +21,7 @@ before_install:
   - sudo apt-get install -y swig3.0 libjack-jackd2-dev portaudio19-dev sox libatlas-base-dev
   - pip install pyaudio
 install:
-  - scripts/install_snowboy.sh
+  - scripts/install_snowboy.sh -i ./
   - pip install -U tox coveralls
 language: python
 script: tox
