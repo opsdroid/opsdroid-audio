@@ -3,11 +3,31 @@
 # Script to get the snowboy repository and create a working python module from it.
 
 # Set variables
-INSTALL_DIR=${1:-${PWD}}
+INSTALL_DIR=${1:-$(python -c "import site; print(site.getsitepackages()[0])")}
 CURRENT_DIR=${PWD}
 TMP_DIR="/tmp/snowboy"
 SNOWBOY_VERSION="v1.1.0"
 SNOWBOY_REPOSITORY="https://github.com/Kitt-AI/snowboy.git"
+UPDATE=false
+
+while getopts ":update:" option; do
+  case "${option}" in
+          update) UPDATE=true;;
+  esac
+done
+
+# Check if already installed and remove if update flag set
+if [ -d "$INSTALL_DIR/snowboydetect" ]; then
+  if [ $UPDATE = false ]; then
+    echo "Snowboy already installed. Run again with the `--update` flag to force an update."
+    exit 1
+  else
+    echo "Upgrading snowboy. Removing old version."
+    rm -rf $INSTALL_DIR/snowboydetect
+    if [ ! $? -eq 0 ]; then
+      echo "Error: Failed to remove $INSTALL_DIR/snowboydetect."; exit 1
+    fi
+fi
 
 # Get the snowboy code
 if [ $(which git) ]
