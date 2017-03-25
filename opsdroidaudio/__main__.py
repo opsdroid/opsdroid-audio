@@ -65,7 +65,7 @@ class OpsdroidAudio:
         for thread in self.threads:
             thread.start()
         for thread in self.threads:
-            thread.join()
+            thread.join(60)
 
         self.detector.terminate()
 
