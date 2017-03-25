@@ -94,7 +94,8 @@ class OpsdroidAudio:
                     return model
                 else:
                     self.critical(
-                        "Unable to find hotword {}".format(self.config.get("hotword")), 1)
+                        "Unable to find hotword {}".format(
+                            self.config.get("hotword")), 1)
         finally:
             _LOGGER.info("Loaded model %s", self.config.get("hotword"))
 
