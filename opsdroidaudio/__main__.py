@@ -94,7 +94,7 @@ class OpsdroidAudio:
                     return model
                 else:
                     self.critical(
-                        "Unable to find hotword {}".format(self.model), 1)
+                        "Unable to find hotword {}".format(self.config.get("hotword")), 1)
         finally:
             _LOGGER.info("Loaded model %s", self.config.get("hotword"))
 
@@ -207,6 +207,8 @@ class OpsdroidAudio:
             config = self.config["speech"]["recognizer"]
             if config["name"] == "google_cloud":
                 return recognizers.google_cloud(config, data, sample_rate)
+            elif config["name"] == "sphinx":
+                return recognizers.sphinx(config, data, sample_rate)
             else:
                 raise KeyError
         except KeyError:

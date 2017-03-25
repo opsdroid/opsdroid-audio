@@ -24,23 +24,50 @@ When opsdroid audio listens for your hotword it only retains the last few second
 When you trigger the hotword and opsdroid audio begins recording your voice it is only sent to the services you configure. If you choose to use a local speech recognition service then no sound will ever leave the application. Any sound sent to cloud based services will be encrypted in transit and it is your decision whether to trust that provider with your data or not.
 
 ## Installation
-TODO
+
+### macOS
+
+1. `brew install swig portaudio pocketsphinx`
+1. `git clone https://github.com/opsdroid/opsdroid-audio.git /path/to/opsdroid-audio`
+1. `cd /path/to/opsdroid-audio`
+1. `scripts/install_snowboy.sh -i ./`
+1. `pip install -r requirements.txt`
+1. `python -m opsdroidaudio`
 
 ## Configuration
-TODO
+
+`~/.opsdroidaudio/configuration.yaml`
+
+```yaml
+## Hotword
+# "alexa", "computer", "opsdroid", "snowboy"
+# or path to pmdl file generated at https://snowboy.kitt.ai/dashboard
+hotword: "opsdroid"
+
+## Opsdroid instance
+opsdroid:  
+  host: "localhost"
+  port: 8080
+
+## Speech configuration
+speech:
+  recognizer:
+    name: "sphinx"
+  generator:
+    name: "google"
+```
 
 ## Recognizers
 List of currently available speech recognition services:
 
- * Google Cloud (cloud)
- * Sphinx (local) **Coming soon!**
+  * Sphinx (local)  
+  * Google Cloud (cloud)
 
 ## Generators
 List of test-to-speech engines.
 
- * Google (cloud)
- * Apple Say (local) *- Apple macOS only*
-
+  * Apple Say (local) *- Apple macOS only*
+  * Google (cloud)
 
 ## Contributing
 Pull requests are welcome!
