@@ -131,7 +131,11 @@ class OpsdroidAudio:
             self.opsdroid_host, self.opsdroid_port), data={})
         output = response.json()
         _LOGGER.debug(output)
-        return output["socket"]
+        try:
+            return output["socket"]
+        except TypeError:
+            _LOGGER.error("Websocket returned bad response")
+            return
 
     def start_socket(self):
         """Connect to opsdroid with a websocket."""
