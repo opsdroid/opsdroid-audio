@@ -178,16 +178,16 @@ class OpsdroidAudio:
             self.socket_close()
 
     def interrupt_callback(self):
-        """Callback to notify the hotword detector of an interrupt."""
+        """Notify the hotword detector of an interrupt."""
         return not self.interrupted.empty()
 
     @staticmethod
     def detected_callback(data, detector):
-        """Callback for when the hotword has been detected."""
+        """Hotword has been detected."""
         audio.play_audio_file(audio.DETECT_DING)
 
     def recording_callback(self, data, detector):
-        """Callback for handling a recording."""
+        """Handle a recording."""
         audio.play_audio_file(audio.DETECT_DONG)
 
         start_time = datetime.now()
@@ -237,7 +237,7 @@ class OpsdroidAudio:
 
 
 def main():
-    """The main function."""
+    """Enter the application here."""
     oaudio = OpsdroidAudio()
 
     # capture SIGINT signal, e.g., Ctrl+C

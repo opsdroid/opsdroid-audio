@@ -49,7 +49,7 @@ class RingBuffer(object):
 
 
 def play_audio_file(fname=DETECT_DING):
-    """Simple callback function to play a wave file.
+    """Play a wave file.
 
     By default it plays a Ding sound.
 
@@ -120,12 +120,12 @@ class HotwordDetector(object):
 
         if len(decoder_model) > 1 and len(sensitivity) == 1:
             sensitivity = sensitivity*self.num_hotwords
-        if len(sensitivity) != 0:
+        if sensitivity:
             assert self.num_hotwords == len(sensitivity), \
                 "number of hotwords in decoder_model (%d) and sensitivity " \
                 "(%d) does not match" % (self.num_hotwords, len(sensitivity))
         sensitivity_str = ",".join([str(t) for t in sensitivity])
-        if len(sensitivity) != 0:
+        if sensitivity:
             self.detector.SetSensitivity(sensitivity_str.encode())
 
         self.ring_buffer = RingBuffer(
@@ -186,7 +186,7 @@ class HotwordDetector(object):
                 _LOGGER.debug("detect voice break")
                 break
             data = self.ring_buffer.get()
-            if len(data) == 0:
+            if not data:
                 time.sleep(sleep_time)
                 continue
 
