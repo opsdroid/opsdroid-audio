@@ -72,13 +72,6 @@ List of test-to-speech engines.
 ## Contributing
 Pull requests are welcome!
 
-## License
-GPLv3
-
-Hotword components from [snowboy][snowboy-github] redistributed here are [Apache 2.0][apache20] licensed and are [compatible][apache-gpl-compatible] for use in a GPLv3 project.
-
-[apache20]: http://www.apache.org/licenses/LICENSE-2.0
-[apache-gpl-compatible]: https://www.apache.org/licenses/GPL-compatibility.html
 [opsdroid]: https://opsdroid.github.io/
 [snowboy]: https://snowboy.kitt.ai/
 [snowboy-github]: https://github.com/Kitt-AI/snowboy#introduction
