@@ -4,5 +4,5 @@ playsound==1.2.1
 PyAudio==0.2.11
 PyYAML==3.12
 requests==2.18.4
-SpeechRecognition==3.6.5
+SpeechRecognition==3.8.1
 websocket-client==0.43.0
