@@ -27,7 +27,7 @@ _LOGGER.setLevel(logging.DEBUG)
 class OpsdroidAudio:
     """The opsdroid audio class."""
 
-    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-instance-attributes, no-else-return, unused-variable
     # Needs refactoring as port of opsdroid/opsdroid-audio#12
 
     def __init__(self):
@@ -93,7 +93,7 @@ class OpsdroidAudio:
                 if os.path.exists(model):
                     return model
                 else:
-                    self.critical(
+                    return self.critical(
                         "Unable to find hotword {}".format(
                             self.config.get("hotword")), 1)
         finally:

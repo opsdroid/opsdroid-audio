@@ -28,6 +28,8 @@ RECORDING_THRESHOLD = 3000
 class RingBuffer(object):
     """Ring buffer to hold audio from PortAudio."""
 
+    # pylint: disable=unused-variable
+
     def __init__(self, size=4096):
         """Set buffer max size on init."""
         self._buf = collections.deque(maxlen=size)
