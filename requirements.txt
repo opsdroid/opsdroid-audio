@@ -3,6 +3,6 @@ gtts==1.2.2
 playsound==1.2.2
 PyAudio==0.2.11
 PyYAML==3.13
-requests==2.18.4
+requests==2.21.0
 SpeechRecognition==3.8.1
 websocket-client==0.47.0
