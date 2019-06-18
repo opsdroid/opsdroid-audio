@@ -2,7 +2,7 @@ flake8==3.7.3
 pylint==1.7.5
 astroid==1.5.3
 coveralls==1.8.1
-mock==2.0.0
+mock==3.0.5
 pytest==4.6.3
 pytest-cov==2.5.1
 pytest-timeout==1.2.1
