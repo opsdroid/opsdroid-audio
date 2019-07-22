@@ -7,5 +7,5 @@ pytest==4.6.3
 pytest-cov==2.7.1
 pytest-timeout==1.2.1
 pytest-catchlog==1.2.2
-pydocstyle==2.1.1
+pydocstyle==4.0.0
 requests_mock==1.6.0
