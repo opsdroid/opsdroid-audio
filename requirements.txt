@@ -1,5 +1,5 @@
 google-api-python-client==1.7.11
-gtts==2.0.3
+gtts==2.0.4
 playsound==1.2.2
 PyAudio==0.2.11
 PyYAML==3.13
