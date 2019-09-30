@@ -1,6 +1,6 @@
 flake8==3.7.7
 pylint==1.7.5
-astroid==1.5.3
+astroid==2.3.1
 coveralls==1.8.1
 mock==3.0.5
 pytest==4.6.3
