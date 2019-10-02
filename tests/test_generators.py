@@ -1,8 +1,4 @@
 import unittest
-try:
-    import unittest.mock as mock
-except ImportError:
-    import mock
 
 from opsdroidaudio import generators
 
