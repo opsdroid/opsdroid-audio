@@ -25,7 +25,7 @@ RECORDING_SILENCE = 4
 RECORDING_THRESHOLD = 3000
 
 
-class RingBuffer(object):
+class RingBuffer:
     """Ring buffer to hold audio from PortAudio."""
 
     def __init__(self, size=4096):
@@ -71,7 +71,7 @@ def play_audio_file(fname=DETECT_DING):
     audio.terminate()
 
 
-class HotwordDetector(object):
+class HotwordDetector:
     """
     Detect whether a keyword exists in a microphone input stream.
 

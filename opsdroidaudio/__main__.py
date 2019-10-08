@@ -86,16 +86,19 @@ class OpsdroidAudio:
         try:
             if os.path.exists(self.config.get("hotword")):
                 return self.config.get("hotword")
-            else:
-                pwd, _ = os.path.split(os.path.realpath(__file__))
-                model = "{}/models/{}.pmdl".format(
-                    pwd, self.config.get("hotword"))
-                if os.path.exists(model):
-                    return model
-                else:
-                    self.critical(
-                        "Unable to find hotword {}".format(
-                            self.config.get("hotword")), 1)
+
+            pwd, _ = os.path.split(os.path.realpath(__file__))
+            model = "{}/models/{}.pmdl".format(
+                pwd, self.config.get("hotword"))
+
+            if not os.path.exists(model):
+                self.critical(
+                    "Unable to find hotword {}".format(
+                        self.config.get("hotword")), 1)
+
+            return model
+
+
         finally:
             _LOGGER.info("Loaded model %s", self.config.get("hotword"))
 
@@ -108,8 +111,7 @@ class OpsdroidAudio:
         config_path = ""
         for possible_path in config_paths:
             if not os.path.isfile(possible_path):
-                _LOGGER.debug("Config file " + possible_path +
-                              " not found")
+                _LOGGER.debug("Config file %s not found", possible_path)
             else:
                 config_path = possible_path
                 break
@@ -212,10 +214,11 @@ class OpsdroidAudio:
             config = self.config["speech"]["recognizer"]
             if config["name"] == "google_cloud":
                 return recognizers.google_cloud(config, data, sample_rate)
-            elif config["name"] == "sphinx":
+
+            if config["name"] == "sphinx":
                 return recognizers.sphinx(config, data, sample_rate)
-            else:
-                raise KeyError
+
+            raise KeyError
         except KeyError:
             self.critical("No speech recognizer configured!", 1)
 
