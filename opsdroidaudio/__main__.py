@@ -98,7 +98,6 @@ class OpsdroidAudio:
 
             return model
 
-
         finally:
             _LOGGER.info("Loaded model %s", self.config.get("hotword"))
 
@@ -138,7 +137,6 @@ class OpsdroidAudio:
             return output["socket"]
         except TypeError:
             _LOGGER.error("Websocket returned bad response")
-            return
 
     def start_socket(self):
         """Connect to opsdroid with a websocket."""
@@ -229,10 +227,10 @@ class OpsdroidAudio:
             config = self.config["speech"]["generator"]
             if config["name"] == "google":
                 return generators.google(config, text)
-            elif config["name"] == "apple_say":
+            if config["name"] == "apple_say":
                 return generators.apple_say(config, text)
-            else:
-                raise KeyError
+
+            raise KeyError
         except KeyError:
             self.critical("No speech generator configured!", 1)
         finally:
