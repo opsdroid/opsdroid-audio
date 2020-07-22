@@ -14,10 +14,9 @@ def prepare_url(text):
     """Transform url found in text for better voice understanding."""
     text = text.replace("/www.", "/")
     url = re.search(r'(https?:\/\/(\w+.\w+).*)', text)
-    text = text.split(" ")
-    text[text.index(url.group(1))] = "a link to {}".format(url.group(2))
+    text = text.replace(url.group(1), "a link to {}".format(url.group(2)))
 
-    return " ".join(text)
+    return text
 
 
 def google(config, text):
