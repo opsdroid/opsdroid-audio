@@ -13,7 +13,7 @@ REQUIRES = [
     'google-api-python-client==1.6.2',
     'playsound==1.2.1',
     'PyAudio==0.2.9',
-    'PyYAML==3.11',
+    'PyYAML==5.4',
     'requests==2.13.0',
     'SpeechRecognition==3.6.0',
     'websocket-client==0.40.0',
