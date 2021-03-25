@@ -2,7 +2,7 @@ google-api-python-client==1.7.12
 gtts==2.0.4
 playsound==1.2.2
 PyAudio==0.2.11
-PyYAML==5.3
+PyYAML==5.4
 requests==2.22.0
 SpeechRecognition==3.8.1
 websocket-client==0.57.0
