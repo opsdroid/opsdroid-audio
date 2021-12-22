@@ -209,10 +209,7 @@ class HotwordDetector:
                     self.recording_silence = 0
                     self.recording_time = 0
 
-                if max(data_as_ints) > RECORDING_THRESHOLD:
-                    self.last_chunk_silent = False
-                else:
-                    self.last_chunk_silent = True
+                self.last_chunk_silent = max(data_as_ints) <= RECORDING_THRESHOLD
             else:
                 ans = self.detector.RunDetection(data)
                 if ans == -1:
